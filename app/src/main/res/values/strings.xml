@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Vex Team App</string>
+    <string name="team_name_format">%1$s - %2$s</string>
+    <string name="program_format">%1$s - %2$s</string>
+    <string name="location_format">%1$s, %2$s</string>
+    <string name="rank_format">Rank: %1$d</string>
+    <string name="score_format">Total Score: %1$d</string>
+    <string name="home">Home</string>
+    <string name="trophies_and_achievements">Trophies and Achievements</string>
+    <string name="team_awards">Team Awards</string>
+    <string name="change_team">Change Team</string>
+    <string name="awards">Awards</string>
+    <string name="competitions">Competitions</string>
+    <string name="skills">Skills</string>
+    <string name="enter_team_number">Enter Team Number</string>
+    <string name="search">Search</string>
+    <string name="individual_competition_scores">Individual Competition Scores</string>
+    <string name="skills_history">Skills History</string>
+    <string name="excellence_award">Excellence Award</string>
+    <string name="vex_worlds_championship">VEX Worlds Championship</string>
+    <string name="jan_05_2026">Jan 05, 2026</string>
+    <string name="total_0">Total: 0</string>
+    <string name="d_0_p_0">D: 0 | P: 0</string>
+    <string name="season_name">Season Name</string>
+    <string name="event_name">Event Name</string>
+    <string name="competition_details">Competition Details</string>
+    <string name="trophies_and_achievements_count">Trophies and Achievements (%1$d)</string>
+</resources>

@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.VexTeamApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#212529</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="colorPrimary">#0d6efd</item>
+    </style>
+</resources>
