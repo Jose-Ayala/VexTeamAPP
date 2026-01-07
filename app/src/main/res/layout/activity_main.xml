@@ -2,40 +2,53 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#212529"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".MainActivity">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/searchLayout"
+        android:id="@+id/teamNumberInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:hint="@string/enter_team_number"
-        android:textColorHint="#adb5bd"
+        android:hint="@string/enter_team_number_e_g_1234a"
+        android:textColorHint="#ADB5BD"
+        app:boxStrokeColor="#FFFFFF"
+        app:boxStrokeWidth="2dp"
+        app:errorEnabled="true"
+        app:errorTextColor="#FF5252"
+        app:hintTextColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.45">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/teamNumberSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapCharacters"
-            android:textColor="#ffffff" />
+            android:textColor="#FFFFFF" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/searchButton"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
         android:text="@string/search"
         android:textColor="#ffffff"
-        app:strokeColor="#ffffff"
-        app:layout_constraintTop_toBottomOf="@id/searchLayout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/teamNumberInputLayout"
+        app:strokeColor="#ffffff" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

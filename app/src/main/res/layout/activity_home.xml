@@ -2,20 +2,24 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#212529"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".HomeActivity">
 
     <TextView
         android:id="@+id/teamName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:textColor="#ffffff"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1234A Team Name" />
 
     <TextView
         android:id="@+id/programName"
@@ -25,7 +29,8 @@
         android:textColor="#ffffff"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/teamName" />
+        app:layout_constraintTop_toBottomOf="@id/teamName"
+        tools:text="VRC High School" />
 
     <TextView
         android:id="@+id/organization"
@@ -35,7 +40,8 @@
         android:textColor="#ffffff"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/programName" />
+        app:layout_constraintTop_toBottomOf="@id/programName"
+        tools:text="Organization Name" />
 
     <TextView
         android:id="@+id/location"
@@ -45,7 +51,8 @@
         android:textColor="#adb5bd"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/organization" />
+        app:layout_constraintTop_toBottomOf="@id/organization"
+        tools:text="City, Region" />
 
     <TextView
         android:id="@+id/country"
@@ -55,7 +62,8 @@
         android:textColor="#adb5bd"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/location" />
+        app:layout_constraintTop_toBottomOf="@id/location"
+        tools:text="United States" />
 
     <LinearLayout
         android:id="@+id/buttonContainer"

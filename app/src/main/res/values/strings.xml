@@ -25,4 +25,10 @@
     <string name="event_name">Event Name</string>
     <string name="competition_details">Competition Details</string>
     <string name="trophies_and_achievements_count">Trophies and Achievements (%1$d)</string>
+    <string name="enter_team_number_e_g_1234a">Enter Team Number (e.g. 1234A)</string>
+    <string name="loading_team_info">Loading team info…</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="no_awards_found_for_this_team">No awards found for this team.</string>
+    <string name="error_loading_data">Error loading data</string>
+    <string name="retry">RETRY</string>
 </resources>
