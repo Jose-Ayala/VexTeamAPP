@@ -9,24 +9,11 @@
     android:padding="24dp"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/aboutLogo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:contentDescription="@string/vex_team_app_logo"
-        android:src="@mipmap/ic_launcher_round"
-        app:layout_constraintBottom_toTopOf="@+id/teamNumberInputLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/teamNumberInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:hint="@string/enter_team_number_e_g_1234a"
         android:textColorHint="#ADB5BD"
         app:boxStrokeColor="#FFFFFF"
@@ -34,10 +21,11 @@
         app:errorEnabled="true"
         app:errorTextColor="#FF5252"
         app:hintTextColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/searchButton"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/aboutLogo">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.45">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/teamNumberSearch"
@@ -53,12 +41,11 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:text="@string/search"
         android:textColor="#ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/teamNumberInputLayout"
