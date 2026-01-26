@@ -250,6 +250,7 @@ class CompsActivity : AppCompatActivity() {
                         val parts = body.split("\n")
                         val rankLine = parts[0]
                         val recordLine = parts[1]
+                        val statsLine = parts.getOrNull(2) ?: ""
 
                         val builder = SpannableStringBuilder()
                         builder.append(rankLine)
@@ -259,6 +260,14 @@ class CompsActivity : AppCompatActivity() {
                         val recordStart = builder.length
                         builder.append(recordLine)
                         builder.setSpan(ForegroundColorSpan("#00D2FF".toColorInt()), recordStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                        if (statsLine.isNotEmpty()) {
+                            builder.append("\n")
+                            val statsStart = builder.length
+                            builder.append(statsLine)
+                            builder.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.accent_gold)), statsStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+
                         setText(builder, TextView.BufferType.SPANNABLE)
                     } else {
                         // Apply single color for other cards (like Awards)
@@ -274,7 +283,7 @@ class CompsActivity : AppCompatActivity() {
                 val dateView = TextView(this).apply {
                     text = secondaryText
                     textSize = 12f
-                    setTextColor(ContextCompat.getColor(context, R.color.accent_gold))
+                    setTextColor(ContextCompat.getColor(context, R.color.white))
                     setPadding(0, 20, 0, 0)
                 }
                 textLayout.addView(dateView)
@@ -297,7 +306,13 @@ class CompsActivity : AppCompatActivity() {
 
         addSection(getString(R.string.skills), skillsBody.toString(), R.drawable.ic_skills, isSkills = true)
 
-        val rankText = rank?.let { "Rank: ${it.rank}\nRecord: ${it.wins}W - ${it.losses}L - ${it.ties}T" } ?: "No ranking data available."
+        // CHANGE THIS:
+        val rankText = rank?.let {
+            "Rank: ${it.rank}\n" +
+                    "Record: ${it.wins}W - ${it.losses}L - ${it.ties}T\n" +
+                    "WP: ${it.wp} | AP: ${it.ap} | SP: ${it.sp}"
+        } ?: "No ranking data available."
+
         addSection(getString(R.string.competitions), rankText, R.drawable.ic_calendar, secondaryText = "Date: $eventDate")
 
         val awardText = if (awards.isEmpty()) "No awards won." else awards.joinToString("\n") { "• ${it.title}" }

@@ -54,6 +54,9 @@ data class CompRankingData(
     @SerializedName("wins") val wins: Int,
     @SerializedName("losses") val losses: Int,
     @SerializedName("ties") val ties: Int,
+    @SerializedName("wp") val wp: Int,
+    @SerializedName("ap") val ap: Int,
+    @SerializedName("sp") val sp: Int,
     @SerializedName("event") val event: CompEventRef?
 )
 
