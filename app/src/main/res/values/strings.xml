@@ -71,5 +71,16 @@
     <string name="tap_to_view_events">Tap to view events</string>
     <string name="no_skills_runs">No skills runs this season</string>
     <string name="multiple_teams_found_please_select">Multiple teams found. Please select a team:</string>
-    <string name="verifying">VERIFYING...</string>
+    <string name="verifying">VERIFYING…</string>
+    <string name="update_failed_retrying_soon">Update failed. Retrying soon.</string>
+    <string name="update_progress_format">Downloading update: %1$d%%</string>
+    <string name="update_ready_to_install">Update ready to install.</string>
+    <string name="restart">RESTART</string>
+    <string name="verifying_status">VERIFYING…</string>
+    <string name="search_action">SEARCH</string>
+    <string name="err_enter_team">Please enter a team number</string>
+    <string name="err_invalid_format">Use format like 1234A</string>
+    <string name="err_team_not_found">Team not found.</string>
+    <string name="err_api_failure">API Error. Try again.</string>
+    <string name="err_connection_failure">Connection error.</string>
 </resources>

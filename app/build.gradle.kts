@@ -28,8 +28,8 @@ android {
         applicationId = "com.jayala.vexapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.1"
+        versionCode = 5
+        versionName = "1.0.2"
 
         buildConfigField("String", "ROBOT_EVENTS_TOKEN", "\"$robotEventsToken\"")
 
@@ -66,4 +66,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation("com.google.android.play:app-update:2.1.0")
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 }

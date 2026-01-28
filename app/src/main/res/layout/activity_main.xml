@@ -19,6 +19,27 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/CircleImage" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/updateProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:indicatorColor="@color/cyber_blue"
+        app:trackColor="#33FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/appLogo" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/updateProgressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/updateProgressBar" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/teamNumberInputLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

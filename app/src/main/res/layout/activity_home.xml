@@ -8,6 +8,26 @@
     android:background="@color/bg_dark"
     android:padding="20dp">
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/updateProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:indicatorColor="@color/cyber_blue"
+        app:trackColor="#33FFFFFF"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/updateProgressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/updateProgressBar" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/cardScrollView"
         android:layout_width="match_parent"
@@ -15,7 +35,7 @@
         android:layout_marginBottom="16dp"
         android:fillViewport="true"
         android:scrollbars="none"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/updateProgressText"
         app:layout_constraintBottom_toTopOf="@id/changeTeamButton">
 
         <LinearLayout
@@ -363,7 +383,8 @@
         app:cornerRadius="12dp"
         app:layout_constraintBottom_toTopOf="@id/aboutButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck,VisualLintButtonSize" />
 
     <TextView
         android:id="@+id/aboutButton"

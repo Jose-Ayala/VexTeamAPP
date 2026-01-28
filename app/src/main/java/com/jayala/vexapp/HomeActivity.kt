@@ -13,6 +13,16 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import android.graphics.Color
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import androidx.core.graphics.toColorInt
 
 class HomeActivity : AppCompatActivity() {
 
@@ -20,10 +30,44 @@ class HomeActivity : AppCompatActivity() {
     private var teamId: Int? = null
     private lateinit var sharedPref: android.content.SharedPreferences
 
+    private lateinit var appUpdateManager: AppUpdateManager
+    private val updateType = AppUpdateType.FLEXIBLE
+
+    private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
+        when (state.installStatus()) {
+            InstallStatus.DOWNLOADING -> {
+                val bytesDownloaded = state.bytesDownloaded()
+                val totalBytesToDownload = state.totalBytesToDownload()
+
+                binding.updateProgressBar.visibility = View.VISIBLE
+                binding.updateProgressText.visibility = View.VISIBLE
+
+                if (totalBytesToDownload > 0) {
+                    val progress = (bytesDownloaded * 100 / totalBytesToDownload).toInt()
+                    binding.updateProgressBar.progress = progress
+                    binding.updateProgressText.text = getString(R.string.update_progress_format, progress)
+                }
+            }
+            InstallStatus.DOWNLOADED -> {
+                binding.updateProgressBar.visibility = View.GONE
+                binding.updateProgressText.visibility = View.GONE
+                showThemedUpdateSnackbar()
+            }
+            InstallStatus.FAILED -> {
+                binding.updateProgressBar.visibility = View.GONE
+                binding.updateProgressText.text = getString(R.string.update_failed_retrying_soon)
+            }
+            else -> { /* Handle other states if necessary */ }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+        appUpdateManager.registerListener(installStateUpdatedListener)
 
         sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
 
@@ -244,6 +288,37 @@ class HomeActivity : AppCompatActivity() {
     private fun navigateToMain() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+            if (info.installStatus() == InstallStatus.DOWNLOADED) {
+                showThemedUpdateSnackbar()
+            } else if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && info.isUpdateTypeAllowed(updateType)
+            ) {
+                appUpdateManager.startUpdateFlow(info, this, AppUpdateOptions.defaultOptions(updateType))
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        appUpdateManager.unregisterListener(installStateUpdatedListener)
+    }
+
+    private fun showThemedUpdateSnackbar() {
+        val snackbar = Snackbar.make(binding.root, "Update ready to install.", Snackbar.LENGTH_INDEFINITE)
+        snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.cyber_blue))
+
+        snackbar.setBackgroundTint("#1A1A1A".toColorInt())
+
+        snackbar.setTextColor(Color.WHITE)
+        snackbar.setAction("RESTART") {
+            appUpdateManager.completeUpdate()
+        }
+        snackbar.show()
     }
 }
 
