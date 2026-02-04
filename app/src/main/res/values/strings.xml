@@ -85,4 +85,7 @@
     <string name="err_connection_failure">Connection error.</string>
     <string name="favorite_teams_manager">Favorite Teams Manager</string>
     <string name="remove_team">Remove team</string>
+    <string name="marker_total">Total: %1$d</string>
+    <string name="marker_breakdown">Driver: %1$d | Prog: %2$d</string>
+    <string name="season_performance_log">SEASON PERFORMANCE LOG</string>
 </resources>
