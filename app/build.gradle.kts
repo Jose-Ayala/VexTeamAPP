@@ -28,8 +28,8 @@ android {
         applicationId = "com.jayala.vexapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.0.2"
+        versionCode = 8
+        versionName = "1.0.8"
 
         buildConfigField("String", "ROBOT_EVENTS_TOKEN", "\"$robotEventsToken\"")
 

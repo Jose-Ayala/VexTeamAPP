@@ -83,4 +83,6 @@
     <string name="err_team_not_found">Team not found.</string>
     <string name="err_api_failure">API Error. Try again.</string>
     <string name="err_connection_failure">Connection error.</string>
+    <string name="favorite_teams_manager">Favorite Teams Manager</string>
+    <string name="remove_team">Remove team</string>
 </resources>
