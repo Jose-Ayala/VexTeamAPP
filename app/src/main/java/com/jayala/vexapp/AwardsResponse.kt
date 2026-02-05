@@ -26,5 +26,6 @@ data class AwardUiModel(
     val title: String,
     val eventName: String,
     val displayDate: String,
-    val sortableDate: String
+    val sortableDate: String,
+    val seasonName: String
 )

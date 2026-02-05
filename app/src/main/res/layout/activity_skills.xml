@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_dark"
+    android:padding="20dp"
     tools:context=".SkillsActivity">
 
     <LinearLayout
@@ -13,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -50,14 +50,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintTop_toBottomOf="@id/fixedTopHeader"
         app:layout_constraintBottom_toTopOf="@id/backButton">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/historyHeader"
@@ -141,14 +142,16 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
         style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_margin="20dp"
+        android:layout_marginBottom="48dp"
         android:text="@string/home"
         android:textColor="@color/white"
         android:textStyle="bold"
         app:backgroundTint="@color/cyber_blue"
         app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

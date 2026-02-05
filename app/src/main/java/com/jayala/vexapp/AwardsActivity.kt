@@ -80,16 +80,34 @@ class AwardsActivity : AppCompatActivity() {
 
         return awards.map { award ->
             val rawDate = eventDateMap[award.event?.id] ?: ""
-
             val cleanedTitle = award.title.replace(Regex("\\(.*?\\)"), "").trim()
+
+            val derivedSeason = try {
+                if (rawDate.isNotEmpty()) {
+                    val parsedDate = ZonedDateTime.parse(rawDate)
+                    val year = parsedDate.year
+                    val month = parsedDate.monthValue
+
+                    if (month >= 8) {
+                        "$year-${year + 1}"
+                    } else {
+                        "${year - 1}-$year"
+                    }
+                } else {
+                    "Unknown Season"
+                }
+            } catch (_: Exception) {
+                "Unknown Season"
+            }
 
             AwardUiModel(
                 title = cleanedTitle,
                 eventName = award.event?.name ?: "Unknown Event",
                 displayDate = formatIsoDate(rawDate),
-                sortableDate = rawDate
+                sortableDate = rawDate,
+                seasonName = derivedSeason
             )
-        }.sortedByDescending { it.sortableDate }
+        }.sortedWith(compareByDescending<AwardUiModel> { it.seasonName }.thenByDescending { it.sortableDate })
     }
 
     private fun formatIsoDate(isoString: String): String {
@@ -121,6 +139,17 @@ class AwardsActivity : AppCompatActivity() {
             )
         }
 
+        val itemsWithHeaders = mutableListOf<AwardsListItem>()
+        var currentSeason = ""
+
+        models.forEach { model ->
+            if (model.seasonName != currentSeason) {
+                currentSeason = model.seasonName
+                itemsWithHeaders.add(AwardsListItem.Header(currentSeason))
+            }
+            itemsWithHeaders.add(AwardsListItem.Award(model))
+        }
+
         if (models.isEmpty()) {
             binding.awardsRecyclerView.visibility = View.GONE
             binding.emptyStateText.visibility = View.VISIBLE
@@ -128,7 +157,7 @@ class AwardsActivity : AppCompatActivity() {
         } else {
             binding.awardsRecyclerView.visibility = View.VISIBLE
             binding.emptyStateText.visibility = View.GONE
-            binding.awardsRecyclerView.adapter = AwardsAdapter(models)
+            binding.awardsRecyclerView.adapter = AwardsAdapter(itemsWithHeaders)
             binding.awardsSubtitle.text = spannableSubtitle
         }
     }
@@ -151,4 +180,9 @@ class AwardsActivity : AppCompatActivity() {
             fetchAwardsData(teamId)
         }
     }
+}
+
+sealed class AwardsListItem {
+    data class Header(val seasonName: String) : AwardsListItem()
+    data class Award(val model: AwardUiModel) : AwardsListItem()
 }
