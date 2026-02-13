@@ -62,4 +62,33 @@ interface RobotEventsService {
     suspend fun getSeasons(
         @Query("active") active: Boolean = true
     ): Response<SeasonResponse>
+
+    @GET("events/{id}/skills")
+    suspend fun getEventSkills(
+        @Path("id") eventId: Int,
+        @Query("per_page") perPage: Int = 250
+    ): Response<CompSkillsResponse>
+
+    @GET("events/{id}/divisions/{div}/rankings")
+    suspend fun getEventRankings(
+        @Path("id") eventId: Int,
+        @Path("div") divisionId: Int,
+        @Query("per_page") perPage: Int = 250
+    ): Response<CompResponse<CompRankingData>>
+
+    @GET("events/{id}")
+    suspend fun getEventDetails(
+        @Path("id") eventId: Int
+    ): Response<CompEventDetail>
+
+    @GET("events/{id}/awards")
+    suspend fun getEventAwards(
+        @Path("id") eventId: Int
+    ): Response<CompAwardResponse>
+
+    @GET("events/{id}/teams")
+    suspend fun getEventTeams(
+        @Path("id") eventId: Int,
+        @Query("per_page") perPage: Int = 250
+    ): Response<EventTeamsResponse>
 }

@@ -1,5 +1,6 @@
 package com.jayala.vexapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -21,11 +22,13 @@ import android.view.Gravity
 import com.google.android.material.card.MaterialCardView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
+import kotlin.jvm.java
 
 class CompsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCompsBinding
     private var eventList: List<CompEventDetail> = listOf()
+    private var teamNameMap = mutableMapOf<Int, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +80,8 @@ class CompsActivity : AppCompatActivity() {
 
                     eventList.forEachIndexed { index, event ->
                         val dateStr = formatDate(event.start)
-                        val fullText = "${event.name} - $dateStr"
+                        val shortName = event.name.substringBefore(":").trim()
+                        val fullText = "$shortName - $dateStr"
 
                         val spannable = android.text.SpannableString(fullText)
                         val dateStartIndex = fullText.lastIndexOf(dateStr)
@@ -141,20 +145,34 @@ class CompsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.VISIBLE
                 binding.contentScroll.visibility = View.GONE
 
+                val teamsResponse = RetrofitClient.service.getEventTeams(eventId)
+                if (teamsResponse.isSuccessful) {
+                    teamNameMap.clear()
+                    teamsResponse.body()?.data?.forEach { team ->
+                        teamNameMap[team.id] = team.teamName ?: ""
+                    }
+                }
+
                 val seasons = (180..215).toList()
                 val sRes = RetrofitClient.service.getCompSkills(teamId, seasons)
                 val rRes = RetrofitClient.service.getCompRankings(teamId, seasons)
-                val aRes = RetrofitClient.service.getCompAwards(teamId, seasons)
+
+                val aRes = RetrofitClient.service.getEventAwards(eventId)
 
                 if (sRes.isSuccessful) {
                     val eventSkills = sRes.body()?.data?.filter { it.event?.id == eventId } ?: emptyList()
                     val rank = rRes.body()?.data?.find { it.event?.id == eventId }
-                    val awards = aRes.body()?.data?.filter { it.event?.id == eventId } ?: emptyList()
 
-                    // Extract the rank from the first available skill entry for this event
+                    val awards = if (aRes.isSuccessful) {
+                        aRes.body()?.data?.filter { award ->
+                            award.teamWinners?.any { it.team?.id == teamId } == true
+                        } ?: emptyList()
+                    } else emptyList()
+
                     val finalSkillsRank = eventSkills.firstOrNull()?.rank ?: 0
+                    val selectedEvent = eventList.find { it.id == eventId }
 
-                    updateUI(eventSkills, rank, awards, formattedDate, finalSkillsRank)
+                    updateUI(eventSkills, rank, awards, formattedDate, finalSkillsRank, selectedEvent?.location, eventId)
                 }
             } catch (e: Exception) {
                 Log.e("COMP_DEBUG", "Fetch error", e)
@@ -165,10 +183,25 @@ class CompsActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUI(skills: List<CompSkillData>, rank: CompRankingData?, awards: List<CompAwardData>, eventDate: String, skillsRank: Int) {
+    private fun updateUI(
+        skills: List<CompSkillData>,
+        rank: CompRankingData?,
+        awards: List<CompAwardData>,
+        eventDate: String,
+        skillsRank: Int,
+        eventLocation: Location?,
+        eventId: Int
+    ) {
         binding.detailsContainer.removeAllViews()
 
-        fun addSection(title: String, body: String, iconRes: Int, secondaryText: String? = null, isSkills: Boolean = false) {
+        fun addSection(
+            title: String,
+            body: String,
+            iconRes: Int,
+            secondaryText: String? = null,
+            isSkills: Boolean = false,
+            onClick: (() -> Unit)? = null
+        ) {
             val card = MaterialCardView(this).apply {
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -182,12 +215,18 @@ class CompsActivity : AppCompatActivity() {
                 strokeColor = ContextCompat.getColor(context, R.color.divider_dark)
                 strokeWidth = 3
                 cardElevation = 0f
+
+                if (onClick != null) {
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { onClick() }
+                }
             }
 
             val horizontalLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 setPadding(50, 50, 50, 50)
-                gravity = Gravity.TOP
+                gravity = Gravity.CENTER_VERTICAL
             }
 
             val icon = ImageView(this).apply {
@@ -199,6 +238,7 @@ class CompsActivity : AppCompatActivity() {
 
             val textLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
 
             val header = TextView(this).apply {
@@ -207,20 +247,16 @@ class CompsActivity : AppCompatActivity() {
                 setTextColor(Color.WHITE)
                 setTypeface(null, Typeface.BOLD)
             }
-
             textLayout.addView(header)
 
             if (isSkills) {
                 val parts = body.split("\n")
-
-                // Driver & Programming line (Blue)
                 val topInfo = TextView(this).apply {
                     text = parts[0]
                     textSize = 14f
                     setTextColor("#00D2FF".toColorInt())
                     setPadding(0, 10, 0, 0)
                 }
-                // Total line (Accent Gold)
                 val totalInfo = TextView(this).apply {
                     text = parts.getOrNull(1) ?: ""
                     textSize = 14f
@@ -230,7 +266,6 @@ class CompsActivity : AppCompatActivity() {
                 textLayout.addView(topInfo)
                 textLayout.addView(totalInfo)
 
-                // Rank line (Green)
                 parts.getOrNull(2)?.let { rankLine ->
                     val rankInfo = TextView(this).apply {
                         text = rankLine
@@ -245,8 +280,7 @@ class CompsActivity : AppCompatActivity() {
                     textSize = 14f
                     setPadding(0, 10, 0, 0)
 
-                    if (title == getString(R.string.competitions) && body.contains("\n")) {
-                        // Apply multiple colors for the Competitions card
+                    if ((title == "Venue" || title == getString(R.string.competitions) || title == getString(R.string.matches)) && body.contains("\n")) {
                         val parts = body.split("\n")
                         val rankLine = parts[0]
                         val recordLine = parts[1]
@@ -267,12 +301,9 @@ class CompsActivity : AppCompatActivity() {
                             builder.append(statsLine)
                             builder.setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.accent_gold)), statsStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }
-
                         setText(builder, TextView.BufferType.SPANNABLE)
                     } else {
-                        // Apply single color for other cards (like Awards)
                         text = body
-                        // Set the color for Awards card text back to cyber blue
                         setTextColor("#00D2FF".toColorInt())
                     }
                 }
@@ -291,8 +322,46 @@ class CompsActivity : AppCompatActivity() {
 
             horizontalLayout.addView(icon)
             horizontalLayout.addView(textLayout)
+
+            if (onClick != null) {
+                val chevron = ImageView(this).apply {
+                    val chevParams = LinearLayout.LayoutParams(60, 60)
+                    layoutParams = chevParams
+                    setImageResource(R.drawable.ic_chevron_right)
+                    setColorFilter(Color.GRAY)
+                }
+                horizontalLayout.addView(chevron)
+            }
+
             card.addView(horizontalLayout)
             binding.detailsContainer.addView(card)
+        }
+
+        eventLocation?.let { loc ->
+            val aboutBody = SpannableStringBuilder().apply {
+                val venueText = loc.venue ?: "Unknown Venue"
+                append(venueText)
+                setSpan(
+                    ForegroundColorSpan(ContextCompat.getColor(this@CompsActivity, R.color.cyber_blue)),
+                    0,
+                    venueText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                append("\n")
+                val startOfLocation = length
+                val locationLine = "${loc.address_1 ?: ""}, ${loc.region ?: ""}"
+                append(locationLine)
+
+                setSpan(
+                    ForegroundColorSpan(ContextCompat.getColor(this@CompsActivity, R.color.skills_rank_green)),
+                    startOfLocation,
+                    length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            addSection("Venue", aboutBody.toString(), R.drawable.ic_info)
         }
 
         val d = skills.filter { it.type.equals("driver", true) }.maxOfOrNull { it.score } ?: 0
@@ -304,18 +373,51 @@ class CompsActivity : AppCompatActivity() {
             skillsBody.append("\nRank: $skillsRank")
         }
 
-        addSection(getString(R.string.skills), skillsBody.toString(), R.drawable.ic_skills, isSkills = true)
+        addSection(
+            title = getString(R.string.skills),
+            body = skillsBody.toString(),
+            iconRes = R.drawable.ic_skills,
+            isSkills = true,
+            onClick = {
+                val intent = Intent(this@CompsActivity, SkillsDetailsActivity::class.java)
+                intent.putExtra("EVENT_ID", eventId)
+                intent.putExtra("TEAM_MAP", HashMap(teamNameMap))
+                startActivity(intent)
+            }
+        )
 
-        // CHANGE THIS:
         val rankText = rank?.let {
             "Rank: ${it.rank}\n" +
                     "Record: ${it.wins}W - ${it.losses}L - ${it.ties}T\n" +
                     "WP: ${it.wp} | AP: ${it.ap} | SP: ${it.sp}"
         } ?: "No ranking data available."
 
-        addSection(getString(R.string.competitions), rankText, R.drawable.ic_calendar, secondaryText = "Date: $eventDate")
+        addSection(getString(R.string.matches), rankText, R.drawable.ic_calendar, onClick = {
+            val intent = Intent(this@CompsActivity, MatchRankDetailsActivity::class.java)
+            intent.putExtra("EVENT_ID", eventId)
+            intent.putExtra("TEAM_MAP", HashMap(teamNameMap))
+            startActivity(intent)
+        })
 
-        val awardText = if (awards.isEmpty()) "No awards won." else awards.joinToString("\n") { "• ${it.title}" }
-        addSection(getString(R.string.awards), awardText, R.drawable.ic_trophy)
+        val awardText = if (awards.isEmpty()) {
+            "No awards won."
+        } else {
+            awards.joinToString("\n") { award ->
+                award.title.substringBefore("(").trim()
+            }
+        }
+
+        addSection(
+            title = getString(R.string.awards),
+            body = awardText,
+            iconRes = R.drawable.ic_trophy,
+            onClick = {
+                val intent = Intent(this@CompsActivity, AwardDetailsActivity::class.java)
+                intent.putExtra("EVENT_ID", eventId)
+                intent.putExtra("EVENT_NAME", eventList.find { it.id == eventId }?.name)
+                intent.putExtra("TEAM_MAP", HashMap(teamNameMap))
+                startActivity(intent)
+            }
+        )
     }
 }

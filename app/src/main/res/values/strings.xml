@@ -11,6 +11,7 @@
     <string name="change_team">Change Team</string>
     <string name="awards">Awards</string>
     <string name="competitions">Competitions</string>
+    <string name="matches">Matches</string>
     <string name="skills">Skills</string>
     <string name="enter_team_number">Enter Team Number</string>
     <string name="search">Search</string>
@@ -24,6 +25,7 @@
     <string name="season_name">Season Name</string>
     <string name="event_name">Event Name</string>
     <string name="competition_details">Competition Details</string>
+    <string name="competition_summary">Competition Summary</string>
     <string name="trophies_and_achievements_count">Trophies and Achievements Since 2023 (%1$d)</string>
     <string name="enter_team_number_e_g_1234a">Enter Team Number (e.g. 1234A)</string>
     <string name="loading_team_info">Loading team info…</string>
@@ -88,4 +90,14 @@
     <string name="marker_total">Total: %1$d</string>
     <string name="marker_breakdown">Driver: %1$d | Prog: %2$d</string>
     <string name="season_performance_log">CURRENT SEASON PERFORMANCE</string>
+    <string name="event_awards">Event Awards</string>
+    <string name="match_rankings">Match Rankings</string>
+    <string name="rank_format2">%1$d</string>
+    <string name="score_summary">Dr: %1$d | Prog: %2$d | Total: %3$d</string>
+    <string name="skills_rankings">Skills Rankings</string>
+    <string name="back">Back</string>
+    <string name="skills_leaderboard">Skills Leaderboard</string>
+    <string name="_1">1</string>
+    <string name="_550x">550X</string>
+    <string name="t_133_d_50_p_83">T: 133 (D: 50 | P: 83)</string>
 </resources>

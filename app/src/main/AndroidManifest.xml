@@ -53,6 +53,21 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SkillsDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VexTeamApp" />
+
+        <activity
+            android:name=".MatchRankDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VexTeamApp" />
+
+        <activity
+            android:name=".AwardDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VexTeamApp" />
+
     </application>
 
 </manifest>

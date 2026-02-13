@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:padding="20dp">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/cyber_blue"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/skills_rankings"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/backButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp"
+        android:layout_marginHorizontal="8dp"
+        android:text="@string/back"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/cyber_blue"
+        app:cornerRadius="15dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/skillsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/backButton"
+        android:layout_below="@id/titleText"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/skills_leaderboard"
+        android:clipToPadding="false"
+        android:paddingBottom="10dp" />
+
+</RelativeLayout>
