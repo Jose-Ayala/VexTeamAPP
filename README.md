@@ -6,6 +6,8 @@ A professional, dark-themed Android application designed for VEX Robotics teams 
 
 - **Team Verification**: Search and validate VEX teams (VRC/VEX U) using Regex and API confirmation.
 - **Live Statistics**: Fetch real-time data for team organization, program, and location.
+- **Performance Visualization**: View "Current Season Performance" through an interactive trend graph that tracks total skills scores over time.
+- **Favorite Teams**: Manage a curated list of teams with a filterable "Favorite Teams" menu to quickly switch between rivals or alliance partners.
 - **Skills Tracking**: View highest Driver and Programming skills scores for the current and past seasons.
 - **Awards Gallery**: A dedicated view for all trophies and achievements earned by the team.
 - **Tournament Insights**: Drill down into specific competitions to see rankings and match records.
