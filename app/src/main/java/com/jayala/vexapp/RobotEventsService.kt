@@ -91,4 +91,11 @@ interface RobotEventsService {
         @Path("id") eventId: Int,
         @Query("per_page") perPage: Int = 250
     ): Response<EventTeamsResponse>
+
+    @GET("events/{id}/divisions/{divisionId}/matches")
+    suspend fun getEventMatchesByDivisionPath(
+        @Path("id") eventId: Int,
+        @Path("divisionId") divisionId: Int,
+        @Query("per_page") perPage: Int = 250
+    ): Response<CompMatchesResponse>
 }

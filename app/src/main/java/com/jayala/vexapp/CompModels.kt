@@ -120,3 +120,32 @@ data class EventTeamData(
     @SerializedName("team_name") val teamName: String?
 )
 
+sealed class MatchResultItem {
+    data class Header(val divisionName: String) : MatchResultItem()
+    data class Match(val data: CompMatchData) : MatchResultItem()
+}
+
+data class CompMatchesResponse(
+    @SerializedName("data") val data: List<CompMatchData>
+)
+
+data class CompMatchData(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("division") val division: Division?,
+    @SerializedName("round") val round: Int,
+    @SerializedName("matchnum") val matchnum: Int,
+    @SerializedName("alliances") val alliances: List<MatchAlliance>
+)
+
+data class MatchAlliance(
+    @SerializedName("color") val color: String,
+    @SerializedName("score") val score: Int,
+    @SerializedName("teams") val teams: List<MatchTeam>
+)
+
+data class MatchTeam(
+    @SerializedName("team") val team: TeamRef,
+    @SerializedName("sitting") val sitting: Boolean
+)
+

@@ -9,7 +9,8 @@
     <color name="black">#FF000000</color>
     <color name="cyber_blue">#00A3FF</color>
     <color name="cyber_blue_muted">#1A365D</color>
-
+    <color name="cyber_red">#FF0000</color>
+    <color name="accent_orange">#FF8C00</color>
     <color name="icon_skills">#00A3FF</color>
     <color name="icon_events">#4CAF50</color>
     <color name="icon_awards">#FFC107</color>

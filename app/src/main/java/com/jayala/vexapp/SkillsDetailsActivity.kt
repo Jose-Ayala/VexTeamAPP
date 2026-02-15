@@ -40,9 +40,12 @@ class SkillsDetailsActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val rawData = response.body()!!.data
                     processAndDisplaySkills(rawData)
+                } else {
+                    processAndDisplaySkills(emptyList())
                 }
             } catch (e: Exception) {
                 Log.e("SKILLS_DEBUG", "Failed to fetch leaderboard", e)
+                processAndDisplaySkills(emptyList())
             } finally {
                 binding.progressBar.visibility = android.view.View.GONE
             }
@@ -53,23 +56,48 @@ class SkillsDetailsActivity : AppCompatActivity() {
         @Suppress("UNCHECKED_CAST")
         val teamNameMap = intent.getSerializableExtra("TEAM_MAP") as? HashMap<Int, String> ?: hashMapOf()
 
-        val summaries = data.groupBy { it.team?.id ?: -1 }
-            .filter { it.key != -1 }
-            .map { entry ->
-                val teamId = entry.key
-                val firstEntry = entry.value.first()
+        val summaries: List<TeamSkillSummary>
 
-                val teamNumber = firstEntry.team?.name ?: "????"
+        if (data.isEmpty()) {
+            binding.titleText.text = getString(R.string.registered_teams)
+            summaries = teamNameMap.map { (teamId, mapValue) ->
+                val parts = mapValue.split("|")
+                val number = parts.getOrElse(0) { "" }
+                val name = parts.getOrElse(1) { mapValue }
 
-                val teamName = teamNameMap[teamId] ?: ""
-
-                val driver = entry.value.filter { it.type == "driver" }.maxOfOrNull { it.score } ?: 0
-                val prog = entry.value.filter { it.type == "programming" }.maxOfOrNull { it.score } ?: 0
-                val rank = entry.value.map { it.rank }.firstOrNull { it > 0 } ?: 0
-
-                TeamSkillSummary(teamId, teamNumber, driver, prog, driver + prog, rank, teamName)
+                TeamSkillSummary(
+                    teamId = teamId,
+                    teamNumber = number,
+                    driver = 0,
+                    programming = 0,
+                    total = 0,
+                    rank = 0,
+                    teamName = name
+                )
             }
-            .sortedBy { it.rank }
+                .sortedBy { it.teamName.lowercase() }
+                .mapIndexed { index, summary ->
+                    summary.copy(rank = index + 1)
+                }
+        } else {
+            summaries = data.groupBy { it.team?.id ?: -1 }
+                .filter { it.key != -1 }
+                .map { entry ->
+                    val teamId = entry.key
+                    val firstEntry = entry.value.first()
+                    val teamNumber = firstEntry.team?.name ?: "????"
+
+                    val mapValue = teamNameMap[teamId] ?: ""
+                    val teamName = if (mapValue.contains("|")) mapValue.split("|")[1] else mapValue
+
+                    val driver = entry.value.filter { it.type == "driver" }.maxOfOrNull { it.score } ?: 0
+                    val prog = entry.value.filter { it.type == "programming" }.maxOfOrNull { it.score } ?: 0
+                    val rank = entry.value.map { it.rank }.firstOrNull { it > 0 } ?: 0
+
+                    TeamSkillSummary(teamId, teamNumber, driver, prog, driver + prog, rank, teamName)
+                }
+                .sortedBy { it.rank }
+        }
 
         binding.skillsRecyclerView.adapter = SkillsLeaderboardAdapter(summaries, currentTeamId, teamNameMap)
     }

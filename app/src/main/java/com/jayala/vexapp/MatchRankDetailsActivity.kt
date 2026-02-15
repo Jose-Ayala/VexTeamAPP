@@ -59,9 +59,37 @@ class MatchRankDetailsActivity : AppCompatActivity() {
                     }
 
                     val displayList = mutableListOf<MatchRankItem>()
+
                     for ((division, rankings) in sortedDivisions) {
-                        displayList.add(MatchRankItem.Header(division.name))
-                        displayList.addAll(rankings.sortedBy { it.rank }.map { MatchRankItem.Rank(it) })
+                        if (rankings.isNotEmpty()) {
+                            displayList.add(MatchRankItem.Header(division.name))
+                            displayList.addAll(rankings.sortedBy { it.rank }.map { MatchRankItem.Rank(it) })
+                        }
+                    }
+
+                    if (displayList.isEmpty()) {
+                        binding.titleText.text = getString(R.string.registered_teams)
+
+                        val fallbackItems = teamNameMap.map { (teamId, mapValue) ->
+                            val parts = mapValue.split("|")
+                            val number = parts.getOrElse(0) { "" }
+
+                            MatchRankItem.Rank(
+                                CompRankingData(
+                                    rank = 0,
+                                    team = TeamRef(id = teamId, name = number, code = null),
+                                    wins = 0, losses = 0, ties = 0,
+                                    wp = 0, ap = 0, sp = 0,
+                                    event = null
+                                )
+                            )
+                        }.sortedBy { it.data.team?.name?.lowercase() }
+                            .mapIndexed { index, item ->
+                                val rankData = item.data
+                                MatchRankItem.Rank(rankData.copy(rank = index + 1))
+                            }
+
+                        displayList.addAll(fallbackItems)
                     }
 
                     binding.skillsRecyclerView.adapter = MatchRankLeaderboardAdapter(displayList, currentTeamId, teamNameMap)

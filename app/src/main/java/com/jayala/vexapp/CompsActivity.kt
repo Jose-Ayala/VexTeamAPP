@@ -149,7 +149,8 @@ class CompsActivity : AppCompatActivity() {
                 if (teamsResponse.isSuccessful) {
                     teamNameMap.clear()
                     teamsResponse.body()?.data?.forEach { team ->
-                        teamNameMap[team.id] = team.teamName ?: ""
+                        val combinedName = "${team.number}|${team.teamName ?: ""}"
+                        teamNameMap[team.id] = combinedName
                     }
                 }
 
@@ -280,7 +281,8 @@ class CompsActivity : AppCompatActivity() {
                     textSize = 14f
                     setPadding(0, 10, 0, 0)
 
-                    if ((title == "Venue" || title == getString(R.string.competitions) || title == getString(R.string.matches)) && body.contains("\n")) {
+                    if ((title == "Venue" || title == getString(R.string.competitions)
+                                || title == getString(R.string.match_rankings) || title == getString(R.string.match_results)) && body.contains("\n")) {
                         val parts = body.split("\n")
                         val rankLine = parts[0]
                         val recordLine = parts[1]
@@ -392,12 +394,24 @@ class CompsActivity : AppCompatActivity() {
                     "WP: ${it.wp} | AP: ${it.ap} | SP: ${it.sp}"
         } ?: "No ranking data available."
 
-        addSection(getString(R.string.matches), rankText, R.drawable.ic_calendar, onClick = {
+        addSection(getString(R.string.match_rankings), rankText, R.drawable.ic_leaderboard, onClick = {
             val intent = Intent(this@CompsActivity, MatchRankDetailsActivity::class.java)
             intent.putExtra("EVENT_ID", eventId)
             intent.putExtra("TEAM_MAP", HashMap(teamNameMap))
             startActivity(intent)
         })
+
+        addSection(
+            title = getString(R.string.match_results),
+            body = "Schedule and Results",
+            iconRes = R.drawable.ic_calendar,
+            onClick = {
+                val intent = Intent(this@CompsActivity, MatchResultsActivity::class.java)
+                intent.putExtra("EVENT_ID", eventId)
+                intent.putExtra("TEAM_MAP", HashMap(teamNameMap))
+                startActivity(intent)
+            }
+        )
 
         val awardText = if (awards.isEmpty()) {
             "No awards won."

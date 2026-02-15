@@ -11,7 +11,7 @@
     <string name="change_team">Change Team</string>
     <string name="awards">Awards</string>
     <string name="competitions">Competitions</string>
-    <string name="matches">Matches</string>
+    <string name="match_results">Match Results</string>
     <string name="skills">Skills</string>
     <string name="enter_team_number">Enter Team Number</string>
     <string name="search">Search</string>
@@ -100,4 +100,6 @@
     <string name="_1">1</string>
     <string name="_550x">550X</string>
     <string name="t_133_d_50_p_83">T: 133 (D: 50 | P: 83)</string>
+    <string name="registered_teams">Registered Teams</string>
+    <string name="no_match_results_available">No Match Results Available</string>
 </resources>
