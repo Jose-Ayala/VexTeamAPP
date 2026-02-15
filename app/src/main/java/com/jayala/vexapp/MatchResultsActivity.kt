@@ -81,7 +81,7 @@ class MatchResultsActivity : AppCompatActivity() {
                     binding.titleText.text = getString(R.string.match_results)
 
                     if (displayList.isEmpty()) {
-                        binding.emptyStateMessage.text = "No Match Results Available"
+                        binding.emptyStateMessage.text = getString(R.string.no_match_results_available)
                         binding.emptyStateMessage.visibility = View.VISIBLE
                         binding.skillsRecyclerView.visibility = View.GONE
                     } else {

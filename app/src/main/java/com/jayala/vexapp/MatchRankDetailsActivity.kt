@@ -92,7 +92,11 @@ class MatchRankDetailsActivity : AppCompatActivity() {
                         displayList.addAll(fallbackItems)
                     }
 
-                    binding.skillsRecyclerView.adapter = MatchRankLeaderboardAdapter(displayList, currentTeamId, teamNameMap)
+                    val cleanedTeamMap = teamNameMap.mapValues { (_, value) ->
+                        if (value.contains("|")) value.split("|").getOrElse(1) { "" } else value
+                    }
+
+                    binding.skillsRecyclerView.adapter = MatchRankLeaderboardAdapter(displayList, currentTeamId, cleanedTeamMap)
                 }
             } catch (e: Exception) {
                 Log.e("RANK_DEBUG", "Failed to fetch rankings", e)

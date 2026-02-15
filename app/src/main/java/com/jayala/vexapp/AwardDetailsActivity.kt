@@ -42,7 +42,11 @@ class AwardDetailsActivity : AppCompatActivity() {
                     val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
                     val myTeamId = sharedPref.getInt("team_id", -1)
 
-                    binding.skillsRecyclerView.adapter = AwardRecipientsAdapter(awardList, myTeamId, teamNameMap)
+                    val cleanedTeamMap = teamNameMap.mapValues { (_, value) ->
+                        if (value.contains("|")) value.split("|").getOrElse(1) { "" } else value
+                    }
+
+                    binding.skillsRecyclerView.adapter = AwardRecipientsAdapter(awardList, myTeamId, cleanedTeamMap)
                 }
             } catch (e: Exception) {
                 Log.e("AWARD_DEBUG", "Error fetching awards", e)
