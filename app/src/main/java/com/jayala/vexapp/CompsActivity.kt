@@ -21,6 +21,7 @@ import android.widget.ImageView
 import android.view.Gravity
 import com.google.android.material.card.MaterialCardView
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
 import kotlin.jvm.java
 
@@ -34,6 +35,7 @@ class CompsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCompsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
         val teamId = sharedPref.getInt("team_id", -1)
@@ -41,6 +43,20 @@ class CompsActivity : AppCompatActivity() {
         binding.teamName.text = teamName
 
         binding.backButton.setOnClickListener { finish() }
+        binding.navHomeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
+            finish()
+        }
+        binding.changeTeamButton.setOnClickListener {
+            sharedPref.edit {
+                remove("team_number")
+                remove("team_id")
+            }
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
 
         if (teamId != -1) {
             loadDropdownData(teamId)

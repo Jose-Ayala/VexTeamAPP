@@ -1,5 +1,6 @@
 package com.jayala.vexapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +38,7 @@ class MatchResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySkillsDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         binding.titleText.text = getString(R.string.match_results)
         eventId = intent.getIntExtra("EVENT_ID", -1)
@@ -50,6 +53,20 @@ class MatchResultsActivity : AppCompatActivity() {
         filterTeamId = currentTeamId
 
         binding.backButton.setOnClickListener { finish() }
+        binding.navHomeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
+            finish()
+        }
+        binding.changeTeamButton.setOnClickListener {
+            getSharedPreferences("VexPrefs", MODE_PRIVATE).edit {
+                remove("team_number")
+                remove("team_id")
+            }
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
         binding.skillsRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Show filter icon and include it in TalkBack focus on this screen only.

@@ -72,6 +72,7 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         appUpdateManager = AppUpdateManagerFactory.create(this)
         appUpdateManager.registerListener(installStateUpdatedListener)
@@ -81,6 +82,13 @@ class HomeActivity : AppCompatActivity() {
         val savedId = sharedPref.getInt("team_id", -1)
 
         setupNavigation()
+
+        binding.navHomeButton.setOnClickListener {
+            // Already on Home; keep as a no-op.
+        }
+        binding.backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         if (savedNumber != null && savedId != -1) {
             this.teamId = savedId

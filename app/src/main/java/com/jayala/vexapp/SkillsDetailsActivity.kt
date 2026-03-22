@@ -1,9 +1,11 @@
 package com.jayala.vexapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,12 +23,27 @@ class SkillsDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySkillsDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
         val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
         currentTeamId = sharedPref.getInt("team_id", -1)
 
         binding.backButton.setOnClickListener { finish() }
+        binding.navHomeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
+            finish()
+        }
+        binding.changeTeamButton.setOnClickListener {
+            getSharedPreferences("VexPrefs", MODE_PRIVATE).edit {
+                remove("team_number")
+                remove("team_id")
+            }
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
         binding.skillsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.teamFilterClearButton.setOnClickListener { binding.teamFilterInput.setText("") }
         binding.teamFilterInput.doAfterTextChanged {

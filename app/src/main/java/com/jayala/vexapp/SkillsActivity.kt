@@ -1,10 +1,11 @@
 package com.jayala.vexapp
 
-import com.jayala.vexapp.SkillsMarkerView
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.jayala.vexapp.databinding.ActivitySkillsBinding
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ class SkillsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySkillsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
         val teamId = sharedPref.getInt("team_id", -1)
@@ -35,6 +37,20 @@ class SkillsActivity : AppCompatActivity() {
         }
 
         binding.backButton.setOnClickListener {
+            finish()
+        }
+        binding.navHomeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
+            finish()
+        }
+        binding.changeTeamButton.setOnClickListener {
+            sharedPref.edit {
+                remove("team_number")
+                remove("team_id")
+            }
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
 

@@ -3,6 +3,7 @@ package com.jayala.vexapp
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.net.toUri
 import com.jayala.vexapp.databinding.ActivityAboutBinding
 
@@ -14,6 +15,7 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyBottomSystemInsetPadding()
 
         // Dynamically get version name from build.gradle
         val versionName = try {
@@ -24,6 +26,20 @@ class AboutActivity : AppCompatActivity() {
         binding.appVersion.text = getString(R.string.version, versionName)
 
         binding.backButton.setOnClickListener {
+            finish()
+        }
+        binding.navHomeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
+            finish()
+        }
+        binding.changeTeamButton.setOnClickListener {
+            getSharedPreferences("VexPrefs", MODE_PRIVATE).edit {
+                remove("team_number")
+                remove("team_id")
+            }
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
 
