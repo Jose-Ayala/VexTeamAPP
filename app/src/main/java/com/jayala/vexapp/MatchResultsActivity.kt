@@ -3,16 +3,26 @@ package com.jayala.vexapp
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jayala.vexapp.databinding.ActivitySkillsDetailsBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class MatchResultsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySkillsDetailsBinding
     private var eventId: Int = -1
+    private var filterTeamId: Int? = null // null means show all teams
+    private var allDivisions: List<Pair<Division, List<CompMatchData>>> = emptyList()
+    private var currentTeamId: Int = -1
+    private var teamNameMap: HashMap<Int, String> = hashMapOf()
 
     private val roundPriority = mapOf(
         2 to 1, // Qualification
@@ -30,8 +40,22 @@ class MatchResultsActivity : AppCompatActivity() {
         binding.titleText.text = getString(R.string.match_results)
         eventId = intent.getIntExtra("EVENT_ID", -1)
 
+        @Suppress("UNCHECKED_CAST")
+        teamNameMap = intent.getSerializableExtra("TEAM_MAP") as? HashMap<Int, String> ?: hashMapOf()
+
+        val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
+        currentTeamId = sharedPref.getInt("team_id", -1)
+
+        // Default filter to current team
+        filterTeamId = currentTeamId
+
         binding.backButton.setOnClickListener { finish() }
         binding.skillsRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Show filter icon and include it in TalkBack focus on this screen only.
+        binding.filterIcon.visibility = View.VISIBLE
+        binding.filterIcon.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        binding.filterIcon.setOnClickListener { showFilterDialog() }
 
         if (eventId != -1) {
             fetchMatchResults()
@@ -41,54 +65,19 @@ class MatchResultsActivity : AppCompatActivity() {
     private fun fetchMatchResults() {
         binding.progressBar.visibility = View.VISIBLE
 
-        val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
-        val currentTeamId = sharedPref.getInt("team_id", -1)
-
         lifecycleScope.launch {
             try {
                 val eventResponse = RetrofitClient.service.getEventDetails(eventId)
                 if (eventResponse.isSuccessful && eventResponse.body() != null) {
                     val divisions = eventResponse.body()?.divisions ?: emptyList()
 
-                    val allDivisionData = divisions.map { division ->
+                    allDivisions = divisions.map { division ->
                         val matchResponse = RetrofitClient.service.getEventMatchesByDivisionPath(eventId, division.id)
                         val matches = if (matchResponse.isSuccessful) matchResponse.body()?.data ?: emptyList() else emptyList()
                         division to matches
                     }
 
-                    val sortedDivisions = allDivisionData.sortedByDescending { pair ->
-                        pair.second.any { match ->
-                            match.alliances.any { alliance ->
-                                alliance.teams.any { it.team.id == currentTeamId }
-                            }
-                        }
-                    }
-
-                    val displayList = mutableListOf<MatchResultItem>()
-                    for ((division, matches) in sortedDivisions) {
-                        if (matches.isNotEmpty()) {
-                            displayList.add(MatchResultItem.Header(division.name))
-
-                            val sortedMatches = matches.sortedWith(compareBy(
-                                { roundPriority[it.round] ?: 99 },
-                                { it.matchnum }
-                            ))
-
-                            displayList.addAll(sortedMatches.map { MatchResultItem.Match(it) })
-                        }
-                    }
-
-                    binding.titleText.text = getString(R.string.match_results)
-
-                    if (displayList.isEmpty()) {
-                        binding.emptyStateMessage.text = getString(R.string.no_match_results_available)
-                        binding.emptyStateMessage.visibility = View.VISIBLE
-                        binding.skillsRecyclerView.visibility = View.GONE
-                    } else {
-                        binding.emptyStateMessage.visibility = View.GONE
-                        binding.skillsRecyclerView.visibility = View.VISIBLE
-                        binding.skillsRecyclerView.adapter = MatchResultsAdapter(displayList, currentTeamId)
-                    }
+                    applyFilter()
                 }
             } catch (e: Exception) {
                 Log.e("MATCH_DEBUG", "Error: ${e.message}")
@@ -96,5 +85,115 @@ class MatchResultsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
             }
         }
+    }
+
+    private fun applyFilter() {
+        val filteredDivisions = if (filterTeamId != null) {
+            // Filter matches to only those containing the selected team
+            allDivisions.map { (division, matches) ->
+                val filteredMatches = matches.filter { match ->
+                    match.alliances.any { alliance ->
+                        alliance.teams.any { it.team.id == filterTeamId }
+                    }
+                }
+                division to filteredMatches
+            }
+        } else {
+            // Show all matches
+            allDivisions
+        }
+
+        val sortedDivisions = filteredDivisions.sortedByDescending { pair ->
+            pair.second.any { match ->
+                match.alliances.any { alliance ->
+                    alliance.teams.any { it.team.id == currentTeamId }
+                }
+            }
+        }
+
+        val displayList = mutableListOf<MatchResultItem>()
+        for ((division, matches) in sortedDivisions) {
+            if (matches.isNotEmpty()) {
+                displayList.add(MatchResultItem.Header(division.name))
+
+                val sortedMatches = matches.sortedWith(compareBy(
+                    { roundPriority[it.round] ?: 99 },
+                    { it.matchnum }
+                ))
+
+                displayList.addAll(sortedMatches.map { MatchResultItem.Match(it) })
+            }
+        }
+
+        binding.titleText.text = getString(R.string.match_results)
+
+        if (displayList.isEmpty()) {
+            binding.emptyStateMessage.text = getString(R.string.no_match_results_available)
+            binding.emptyStateMessage.visibility = View.VISIBLE
+            binding.skillsRecyclerView.visibility = View.GONE
+        } else {
+            binding.emptyStateMessage.visibility = View.GONE
+            binding.skillsRecyclerView.visibility = View.VISIBLE
+            binding.skillsRecyclerView.adapter = MatchResultsAdapter(displayList, currentTeamId)
+        }
+    }
+
+    private fun showFilterDialog() {
+        val teams = teamNameMap.map { (id, mapValue) ->
+            val parts = mapValue.split("|")
+            val number = parts.getOrElse(0) { "" }
+            val name = parts.getOrElse(1) { mapValue }
+            MatchFilterTeam(id = id, number = number, name = name)
+        }.sortedBy { it.number }
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_match_results_filter, null)
+        val myTeamRow = dialogView.findViewById<TextView>(R.id.myTeamRow)
+        val allTeamsRow = dialogView.findViewById<TextView>(R.id.allTeamsRow)
+        val teamsRecyclerView = dialogView.findViewById<RecyclerView>(R.id.teamsRecyclerView)
+        val closeButton = dialogView.findViewById<Button>(R.id.closeButton)
+
+        val dialog = MaterialAlertDialogBuilder(this).setView(dialogView).create()
+
+        fun updateFixedRowStyles() {
+            val myTeamColor = if (filterTeamId == currentTeamId) R.color.accent_gold else R.color.white
+            val allTeamsColor = if (filterTeamId == null) R.color.accent_gold else R.color.white
+            myTeamRow.setTextColor(ContextCompat.getColor(this, myTeamColor))
+            allTeamsRow.setTextColor(ContextCompat.getColor(this, allTeamsColor))
+        }
+
+        updateFixedRowStyles()
+
+        teamsRecyclerView.layoutManager = LinearLayoutManager(this)
+        teamsRecyclerView.adapter = MatchFilterTeamsAdapter(
+            teams = teams,
+            selectedTeamId = filterTeamId,
+            onTeamSelected = { selectedId ->
+                filterTeamId = selectedId
+                applyFilter()
+                dialog.dismiss()
+            }
+        )
+
+        myTeamRow.setOnClickListener {
+            filterTeamId = currentTeamId
+            applyFilter()
+            dialog.dismiss()
+        }
+
+        allTeamsRow.setOnClickListener {
+            filterTeamId = null
+            applyFilter()
+            dialog.dismiss()
+        }
+
+        closeButton.setOnClickListener { dialog.dismiss() }
+
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+        dialog.show()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.95).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 }

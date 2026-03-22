@@ -102,4 +102,8 @@
     <string name="t_133_d_50_p_83">T: 133 (D: 50 | P: 83)</string>
     <string name="registered_teams">Registered Teams</string>
     <string name="no_match_results_available">No Match Results Available</string>
+    <string name="filter_by_team">Filter by Team</string>
+    <string name="all_teams">All Teams</string>
+    <string name="my_team">Current Team</string>
+    <string name="close">Close</string>
 </resources>

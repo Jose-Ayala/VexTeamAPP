@@ -26,6 +26,23 @@
         android:textSize="22sp"
         android:textStyle="bold" />
 
+    <ImageView
+        android:id="@+id/filterIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignTop="@id/titleText"
+        android:layout_alignBottom="@id/titleText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_filter"
+        android:contentDescription="@string/filter_by_team"
+        android:padding="6dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:importantForAccessibility="no"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
         android:layout_width="match_parent"

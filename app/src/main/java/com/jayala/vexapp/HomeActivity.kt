@@ -303,6 +303,9 @@ class HomeActivity : AppCompatActivity() {
                         val spannableCountdown = android.text.SpannableString(countdownText)
                         spannableCountdown.setSpan(android.text.style.ForegroundColorSpan(ContextCompat.getColor(this@HomeActivity, R.color.accent_gold)), 0, countdownText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         binding.competitionsSubtitle.text = spannableCountdown
+                    } else {
+                        binding.nextEventName.text = getString(R.string.no_upcoming_events)
+                        binding.competitionsSubtitle.text = ""
                     }
                 }
             } catch (e: Exception) { Log.e("VEX_DEBUG", "Dashboard error", e) }
