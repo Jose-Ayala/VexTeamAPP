@@ -57,7 +57,8 @@ data class AwardWinner(
 )
 
 data class CompSkillsResponse(
-    @SerializedName("data") val data: List<CompSkillData>
+    @SerializedName("data") val data: List<CompSkillData>,
+    @SerializedName("meta") val meta: PaginationMeta? = null
 )
 
 data class CompSkillData(
@@ -101,7 +102,14 @@ data class CompEventRef(
 
 data class CompResponse<T>(
     @SerializedName("data") val data: List<T>,
-    @SerializedName("meta") val meta: Map<String, Any>? = null
+    @SerializedName("meta") val meta: PaginationMeta? = null
+)
+
+// Pagination fields used by RobotEvents list endpoints.
+data class PaginationMeta(
+    @SerializedName("current_page") val currentPage: Int? = null,
+    @SerializedName("last_page") val lastPage: Int? = null,
+    @SerializedName("total") val total: Int? = null
 )
 
 data class Division(
@@ -111,7 +119,8 @@ data class Division(
 )
 
 data class EventTeamsResponse(
-    @SerializedName("data") val data: List<EventTeamData>
+    @SerializedName("data") val data: List<EventTeamData>,
+    @SerializedName("meta") val meta: PaginationMeta? = null
 )
 
 data class EventTeamData(
@@ -126,7 +135,8 @@ sealed class MatchResultItem {
 }
 
 data class CompMatchesResponse(
-    @SerializedName("data") val data: List<CompMatchData>
+    @SerializedName("data") val data: List<CompMatchData>,
+    @SerializedName("meta") val meta: PaginationMeta? = null
 )
 
 data class CompMatchData(
@@ -148,4 +158,3 @@ data class MatchTeam(
     @SerializedName("team") val team: TeamRef,
     @SerializedName("sitting") val sitting: Boolean
 )
-

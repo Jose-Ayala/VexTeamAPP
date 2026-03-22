@@ -21,8 +21,10 @@
 
         <TextView
             android:id="@+id/rankText"
-            android:layout_width="32dp"
+            android:layout_width="44dp"
             android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:maxLines="1"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />

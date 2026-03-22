@@ -75,8 +75,8 @@ class CompsActivity : AppCompatActivity() {
                     }.reversed()
 
                     val today = java.time.LocalDate.now()
-                    var preselectedIndex = 0
-                    val formattedNames = mutableListOf<CharSequence>(getString(R.string.select_event_hint))
+                    var preselectedIndex = -1
+                    val formattedNames = mutableListOf<CharSequence>()
 
                     eventList.forEachIndexed { index, event ->
                         val dateStr = formatDate(event.start)
@@ -97,8 +97,8 @@ class CompsActivity : AppCompatActivity() {
 
                         try {
                             val eventDate = java.time.LocalDate.parse(event.start?.substring(0, 10))
-                            if (preselectedIndex == 0 && !eventDate.isAfter(today)) {
-                                preselectedIndex = index + 1
+                            if (preselectedIndex == -1 && !eventDate.isAfter(today)) {
+                                preselectedIndex = index
                             }
                         } catch (e: Exception) {
                             Log.e("COMP_DEBUG", "Date parse error", e)
@@ -109,9 +109,10 @@ class CompsActivity : AppCompatActivity() {
                     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
                     binding.competitionDropdown.adapter = adapter
 
-                    if (preselectedIndex > 0) {
-                        binding.competitionDropdown.setSelection(preselectedIndex)
-                        val selectedEvent = eventList[preselectedIndex - 1]
+                    if (eventList.isNotEmpty()) {
+                        val finalSelection = if (preselectedIndex >= 0) preselectedIndex else 0
+                        binding.competitionDropdown.setSelection(finalSelection)
+                        val selectedEvent = eventList[finalSelection]
                         fetchEventDetails(teamId, selectedEvent.id, formatDate(selectedEvent.start))
                     }
 
@@ -128,15 +129,38 @@ class CompsActivity : AppCompatActivity() {
     private fun setupDropdownListener(teamId: Int) {
         binding.competitionDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                if (pos > 0) {
-                    val selectedEvent = eventList[pos - 1]
+                if (pos in eventList.indices) {
+                    val selectedEvent = eventList[pos]
                     fetchEventDetails(teamId, selectedEvent.id, formatDate(selectedEvent.start))
-                } else {
-                    binding.detailsContainer.removeAllViews()
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+    }
+
+    private suspend fun fetchAllEventTeams(eventId: Int): List<EventTeamData> {
+        val allTeams = mutableListOf<EventTeamData>()
+        var page = 1
+        var totalTeams = Int.MAX_VALUE
+
+        while (allTeams.size < totalTeams) {
+            val response = RetrofitClient.service.getEventTeams(eventId, page = page)
+            if (!response.isSuccessful) break
+
+            val body = response.body() ?: break
+            if (body.data.isEmpty()) break
+
+            allTeams.addAll(body.data)
+            totalTeams = body.meta?.total ?: allTeams.size
+
+            val currentPage = body.meta?.currentPage ?: page
+            val lastPage = body.meta?.lastPage ?: currentPage
+            if (currentPage >= lastPage) break
+
+            page++
+        }
+
+        return allTeams.distinctBy { it.id }
     }
 
     private fun fetchEventDetails(teamId: Int, eventId: Int, formattedDate: String) {
@@ -145,13 +169,10 @@ class CompsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.VISIBLE
                 binding.contentScroll.visibility = View.GONE
 
-                val teamsResponse = RetrofitClient.service.getEventTeams(eventId)
-                if (teamsResponse.isSuccessful) {
-                    teamNameMap.clear()
-                    teamsResponse.body()?.data?.forEach { team ->
-                        val combinedName = "${team.number}|${team.teamName ?: ""}"
-                        teamNameMap[team.id] = combinedName
-                    }
+                teamNameMap.clear()
+                fetchAllEventTeams(eventId).forEach { team ->
+                    val combinedName = "${team.number}|${team.teamName ?: ""}"
+                    teamNameMap[team.id] = combinedName
                 }
 
                 val seasons = (180..215).toList()

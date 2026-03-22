@@ -66,14 +66,16 @@ interface RobotEventsService {
     @GET("events/{id}/skills")
     suspend fun getEventSkills(
         @Path("id") eventId: Int,
-        @Query("per_page") perPage: Int = 250
+        @Query("per_page") perPage: Int = 250,
+        @Query("page") page: Int = 1
     ): Response<CompSkillsResponse>
 
     @GET("events/{id}/divisions/{div}/rankings")
     suspend fun getEventRankings(
         @Path("id") eventId: Int,
         @Path("div") divisionId: Int,
-        @Query("per_page") perPage: Int = 250
+        @Query("per_page") perPage: Int = 250,
+        @Query("page") page: Int = 1
     ): Response<CompResponse<CompRankingData>>
 
     @GET("events/{id}")
@@ -89,13 +91,15 @@ interface RobotEventsService {
     @GET("events/{id}/teams")
     suspend fun getEventTeams(
         @Path("id") eventId: Int,
-        @Query("per_page") perPage: Int = 250
+        @Query("per_page") perPage: Int = 250,
+        @Query("page") page: Int = 1
     ): Response<EventTeamsResponse>
 
     @GET("events/{id}/divisions/{divisionId}/matches")
     suspend fun getEventMatchesByDivisionPath(
         @Path("id") eventId: Int,
         @Path("divisionId") divisionId: Int,
-        @Query("per_page") perPage: Int = 250
+        @Query("per_page") perPage: Int = 250,
+        @Query("page") page: Int = 1
     ): Response<CompMatchesResponse>
 }

@@ -23,7 +23,7 @@
             android:layout_marginTop="28dp"
             android:fontFamily="sans-serif-black"
             android:textColor="@color/cyber_blue"
-            android:textSize="28sp"
+            android:textSize="24sp"
             tools:text="550X - XAWG" />
 
         <TextView

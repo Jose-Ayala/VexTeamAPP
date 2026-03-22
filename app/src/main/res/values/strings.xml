@@ -106,4 +106,8 @@
     <string name="all_teams">All Teams</string>
     <string name="my_team">Current Team</string>
     <string name="close">Close</string>
+    <string name="team_filter_hint">Filter by team number or name</string>
+    <string name="registered_teams_count">%1$d Teams</string>
+    <string name="registered_teams_filtered_count">%1$d of %2$d Teams</string>
+    <string name="clear_filter">Clear filter</string>
 </resources>

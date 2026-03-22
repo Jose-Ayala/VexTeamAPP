@@ -65,24 +65,24 @@
                         android:id="@+id/teamName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_high_emphasis"
-                        android:textSize="28sp"
                         android:fontFamily="sans-serif-black"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:textColor="@color/cyber_blue"
+                        android:textSize="24sp"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         tools:text="550X - XAWG" />
 
                     <TextView
                         android:id="@+id/programName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/cyber_blue"
+                        android:letterSpacing="0.1"
+                        android:textAllCaps="true"
+                        android:textColor="@color/text_high_emphasis"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        app:layout_constraintTop_toBottomOf="@id/teamName"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/teamName"
                         tools:text="V5RC - VEX V5 ROBOTICS COMPETITION" />
 
                     <View
@@ -98,7 +98,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:textColor="@color/text_high_emphasis"
+                        android:textColor="@color/accent_gold"
                         android:textSize="16sp"
                         app:layout_constraintTop_toBottomOf="@id/divider"
                         tools:text="APOPKA HIGH" />

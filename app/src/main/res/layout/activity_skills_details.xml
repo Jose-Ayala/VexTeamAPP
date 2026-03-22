@@ -20,9 +20,9 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="10dp"
         android:text="@string/skills_rankings"
-        android:textColor="@color/white"
+        android:textColor="@color/cyber_blue"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -42,6 +42,64 @@
         android:visibility="gone"
         android:importantForAccessibility="no"
         android:background="?attr/selectableItemBackgroundBorderless" />
+
+    <LinearLayout
+        android:id="@+id/registeredTeamsTools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleText"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/registeredTeamsCountText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:textAlignment="center"
+            android:textColor="@color/accent_gold"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/teamFilterInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:autofillHints=""
+                android:background="@drawable/text_filter_input_bg"
+                android:hint="Filter by team number or name"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingStart="16dp"
+                android:paddingEnd="52dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/cyber_blue" />
+
+            <ImageView
+                android:id="@+id/teamFilterClearButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/clear_filter"
+                android:focusable="true"
+                android:padding="6dp"
+                android:src="@drawable/ic_clear_24"
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backButton"
@@ -63,10 +121,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/backButton"
-        android:layout_below="@id/titleText"
+        android:layout_below="@id/registeredTeamsTools"
         android:layout_marginBottom="16dp"
-        android:contentDescription="@string/skills_leaderboard"
         android:clipToPadding="false"
+        android:contentDescription="@string/skills_leaderboard"
         android:paddingBottom="10dp" />
 
     <TextView

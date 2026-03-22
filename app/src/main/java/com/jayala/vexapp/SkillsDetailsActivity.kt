@@ -2,7 +2,9 @@ package com.jayala.vexapp
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jayala.vexapp.databinding.ActivitySkillsDetailsBinding
@@ -13,6 +15,7 @@ class SkillsDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySkillsDetailsBinding
     private var eventId: Int = -1
     private var currentTeamId: Int = -1
+    private var fallbackRegisteredTeams: List<TeamSkillSummary> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +28,43 @@ class SkillsDetailsActivity : AppCompatActivity() {
 
         binding.backButton.setOnClickListener { finish() }
         binding.skillsRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.teamFilterClearButton.setOnClickListener { binding.teamFilterInput.setText("") }
+        binding.teamFilterInput.doAfterTextChanged {
+            val hasText = !it.isNullOrEmpty()
+            binding.teamFilterClearButton.visibility = if (hasText) View.VISIBLE else View.GONE
+            if (binding.registeredTeamsTools.visibility == View.VISIBLE) {
+                applyRegisteredTeamFilter()
+            }
+        }
 
         if (eventId != -1) {
             fetchFullLeaderboard()
         }
+    }
+
+    private suspend fun fetchAllEventSkills(eventId: Int): List<CompSkillData> {
+        val allSkills = mutableListOf<CompSkillData>()
+        var page = 1
+        var totalRows = Int.MAX_VALUE
+
+        while (allSkills.size < totalRows) {
+            val response = RetrofitClient.service.getEventSkills(eventId, page = page)
+            if (!response.isSuccessful) break
+
+            val body = response.body() ?: break
+            if (body.data.isEmpty()) break
+
+            allSkills.addAll(body.data)
+            totalRows = body.meta?.total ?: allSkills.size
+
+            val currentPage = body.meta?.currentPage ?: page
+            val lastPage = body.meta?.lastPage ?: currentPage
+            if (currentPage >= lastPage) break
+
+            page++
+        }
+
+        return allSkills
     }
 
     private fun fetchFullLeaderboard() {
@@ -36,13 +72,8 @@ class SkillsDetailsActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.service.getEventSkills(eventId)
-                if (response.isSuccessful && response.body() != null) {
-                    val rawData = response.body()!!.data
-                    processAndDisplaySkills(rawData)
-                } else {
-                    processAndDisplaySkills(emptyList())
-                }
+                val rawData = fetchAllEventSkills(eventId)
+                processAndDisplaySkills(rawData)
             } catch (e: Exception) {
                 Log.e("SKILLS_DEBUG", "Failed to fetch leaderboard", e)
                 processAndDisplaySkills(emptyList())
@@ -60,7 +91,9 @@ class SkillsDetailsActivity : AppCompatActivity() {
 
         if (data.isEmpty()) {
             binding.titleText.text = getString(R.string.registered_teams)
-            summaries = teamNameMap.map { (teamId, mapValue) ->
+            binding.registeredTeamsTools.visibility = View.VISIBLE
+
+            fallbackRegisteredTeams = teamNameMap.map { (teamId, mapValue) ->
                 val parts = mapValue.split("|")
                 val number = parts.getOrElse(0) { "" }
                 val name = parts.getOrElse(1) { mapValue }
@@ -74,12 +107,22 @@ class SkillsDetailsActivity : AppCompatActivity() {
                     rank = 0,
                     teamName = name
                 )
+            }.sortedWith { left, right ->
+                val numberCompare = compareTeamNumbersNatural(left.teamNumber, right.teamNumber)
+                if (numberCompare != 0) numberCompare
+                else left.teamName.compareTo(right.teamName, ignoreCase = true)
             }
-                .sortedBy { it.teamName.lowercase() }
-                .mapIndexed { index, summary ->
-                    summary.copy(rank = index + 1)
-                }
+
+            applyRegisteredTeamFilter()
+            return
         } else {
+            binding.registeredTeamsTools.visibility = View.GONE
+            if (binding.teamFilterInput.text?.isNotEmpty() == true) {
+                binding.teamFilterInput.setText("")
+            }
+            binding.teamFilterClearButton.visibility = View.GONE
+            fallbackRegisteredTeams = emptyList()
+
             summaries = data.groupBy { it.team?.id ?: -1 }
                 .filter { it.key != -1 }
                 .map { entry ->
@@ -100,5 +143,30 @@ class SkillsDetailsActivity : AppCompatActivity() {
         }
 
         binding.skillsRecyclerView.adapter = SkillsLeaderboardAdapter(summaries, currentTeamId, teamNameMap)
+    }
+
+    private fun applyRegisteredTeamFilter() {
+        @Suppress("UNCHECKED_CAST")
+        val teamNameMap = intent.getSerializableExtra("TEAM_MAP") as? HashMap<Int, String> ?: hashMapOf()
+
+        val query = binding.teamFilterInput.text?.toString()?.trim().orEmpty()
+        val filtered = if (query.isEmpty()) {
+            fallbackRegisteredTeams
+        } else {
+            fallbackRegisteredTeams.filter { summary ->
+                summary.teamNumber.contains(query, ignoreCase = true) ||
+                    summary.teamName.contains(query, ignoreCase = true)
+            }
+        }.mapIndexed { index, summary ->
+            summary.copy(rank = index + 1)
+        }
+
+        binding.registeredTeamsCountText.text = if (query.isEmpty()) {
+            getString(R.string.registered_teams_count, fallbackRegisteredTeams.size)
+        } else {
+            getString(R.string.registered_teams_filtered_count, filtered.size, fallbackRegisteredTeams.size)
+        }
+
+        binding.skillsRecyclerView.adapter = SkillsLeaderboardAdapter(filtered, currentTeamId, teamNameMap)
     }
 }

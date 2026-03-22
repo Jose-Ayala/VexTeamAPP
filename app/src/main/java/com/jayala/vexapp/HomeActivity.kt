@@ -121,12 +121,7 @@ class HomeActivity : AppCompatActivity() {
                         val headerText = getString(R.string.team_name_format, team.number, team.team_name)
                         sharedPref.edit { putString("team_full_name", headerText) }
 
-                        val spannable = android.text.SpannableString(headerText)
-                        val endOfNumber = team.number.length
-                        spannable.setSpan(android.text.style.ForegroundColorSpan(ContextCompat.getColor(this@HomeActivity, R.color.cyber_blue)), 0, endOfNumber, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        spannable.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, endOfNumber, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-                        binding.teamName.text = spannable
+                        binding.teamName.text = headerText
                         binding.programName.text = getString(R.string.program_format, team.program.code, team.program.name)
                         binding.organization.text = team.organization
                         binding.location.text = getString(R.string.location_format, team.location.city, team.location.region, team.location.country)

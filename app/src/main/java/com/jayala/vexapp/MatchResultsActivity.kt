@@ -62,6 +62,31 @@ class MatchResultsActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun fetchAllDivisionMatches(eventId: Int, divisionId: Int): List<CompMatchData> {
+        val allMatches = mutableListOf<CompMatchData>()
+        var page = 1
+        var totalRows = Int.MAX_VALUE
+
+        while (allMatches.size < totalRows) {
+            val response = RetrofitClient.service.getEventMatchesByDivisionPath(eventId, divisionId, page = page)
+            if (!response.isSuccessful) break
+
+            val body = response.body() ?: break
+            if (body.data.isEmpty()) break
+
+            allMatches.addAll(body.data)
+            totalRows = body.meta?.total ?: allMatches.size
+
+            val currentPage = body.meta?.currentPage ?: page
+            val lastPage = body.meta?.lastPage ?: currentPage
+            if (currentPage >= lastPage) break
+
+            page++
+        }
+
+        return allMatches.distinctBy { it.id }
+    }
+
     private fun fetchMatchResults() {
         binding.progressBar.visibility = View.VISIBLE
 
@@ -72,8 +97,7 @@ class MatchResultsActivity : AppCompatActivity() {
                     val divisions = eventResponse.body()?.divisions ?: emptyList()
 
                     allDivisions = divisions.map { division ->
-                        val matchResponse = RetrofitClient.service.getEventMatchesByDivisionPath(eventId, division.id)
-                        val matches = if (matchResponse.isSuccessful) matchResponse.body()?.data ?: emptyList() else emptyList()
+                        val matches = fetchAllDivisionMatches(eventId, division.id)
                         division to matches
                     }
 
@@ -144,7 +168,11 @@ class MatchResultsActivity : AppCompatActivity() {
             val number = parts.getOrElse(0) { "" }
             val name = parts.getOrElse(1) { mapValue }
             MatchFilterTeam(id = id, number = number, name = name)
-        }.sortedBy { it.number }
+        }.sortedWith { left, right ->
+            val numberCompare = compareTeamNumbersNatural(left.number, right.number)
+            if (numberCompare != 0) numberCompare
+            else left.name.compareTo(right.name, ignoreCase = true)
+        }
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_match_results_filter, null)
         val myTeamRow = dialogView.findViewById<TextView>(R.id.myTeamRow)
