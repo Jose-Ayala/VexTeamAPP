@@ -110,4 +110,6 @@
     <string name="registered_teams_count">%1$d Teams</string>
     <string name="registered_teams_filtered_count">%1$d of %2$d Teams</string>
     <string name="clear_filter">Clear filter</string>
+    <string name="favs">Favs</string>
+    <string name="about">About</string>
 </resources>

@@ -44,6 +44,37 @@ class SkillsDetailsActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+        binding.navFavoritesButton.setOnClickListener {
+            val sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
+            val activeId = sharedPref.getInt("team_id", -1)
+            val activeNumber = sharedPref.getString("team_number", null)
+            if (activeId != -1 && !activeNumber.isNullOrEmpty()) {
+                val fullName = sharedPref.getString("team_full_name", "").orEmpty()
+                val activeName = fullName.removePrefix("$activeNumber - ").takeIf { it != fullName }.orEmpty()
+
+                FavoritesDialogHelper.show(
+                    activity = this,
+                    sharedPref = sharedPref,
+                    currentId = activeId,
+                    currentNumber = activeNumber,
+                    currentName = activeName
+                ) { newId, newNumber, newName ->
+                    val didChange = FavoritesDialogHelper.applyTeamSelection(
+                        sharedPref = sharedPref,
+                        currentTeamId = activeId,
+                        newTeamId = newId,
+                        newTeamNumber = newNumber,
+                        newTeamName = newName
+                    )
+                    if (didChange) {
+                        FavoritesDialogHelper.navigateHomeWithFullReset(this)
+                    }
+                }
+            }
+        }
+        binding.navAboutButton.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
         binding.skillsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.teamFilterClearButton.setOnClickListener { binding.teamFilterInput.setText("") }
         binding.teamFilterInput.doAfterTextChanged {

@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,11 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import com.jayala.vexapp.databinding.ActivityHomeBinding
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -35,8 +31,15 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 
 class HomeActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_OPEN_FAVORITES = "extra_open_favorites"
+    }
+
     private lateinit var binding: ActivityHomeBinding
     private var teamId: Int? = null
+    private var currentTeamNumber: String? = null
+    private var currentTeamName: String? = null
+    private var openFavoritesRequested = false
     private lateinit var sharedPref: android.content.SharedPreferences
 
     private lateinit var appUpdateManager: AppUpdateManager
@@ -74,6 +77,8 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.root.applyBottomSystemInsetPadding()
 
+        openFavoritesRequested = intent.getBooleanExtra(EXTRA_OPEN_FAVORITES, false)
+
         appUpdateManager = AppUpdateManagerFactory.create(this)
         appUpdateManager.registerListener(installStateUpdatedListener)
         sharedPref = getSharedPreferences("VexPrefs", MODE_PRIVATE)
@@ -105,7 +110,7 @@ class HomeActivity : AppCompatActivity() {
             navigateToMain()
         }
 
-        binding.aboutButton.setOnClickListener {
+        binding.navAboutButton.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
     }
@@ -115,6 +120,7 @@ class HomeActivity : AppCompatActivity() {
         binding.skillsButton.setOnClickListener { launchSection(SkillsActivity::class.java) }
         binding.competitionsButton.setOnClickListener { launchSection(CompsActivity::class.java) }
         binding.awardsButton.setOnClickListener { launchSection(AwardsActivity::class.java) }
+        binding.navFavoritesButton.setOnClickListener { openFavoritesDialogIfReady() }
     }
 
     private fun fetchTeamData(teamNumber: String, id: Int) {
@@ -129,17 +135,21 @@ class HomeActivity : AppCompatActivity() {
                         val headerText = getString(R.string.team_name_format, team.number, team.team_name)
                         sharedPref.edit { putString("team_full_name", headerText) }
 
+                        currentTeamNumber = team.number
+                        currentTeamName = team.team_name
+
                         binding.teamName.text = headerText
                         binding.programName.text = getString(R.string.program_format, team.program.code, team.program.name)
                         binding.organization.text = team.organization
                         binding.location.text = getString(R.string.location_format, team.location.city, team.location.region, team.location.country)
 
-                        binding.favoriteButton.setOnClickListener {
-                            showFavoritesDialog(team.id, team.number, team.team_name)
-                        }
 
                         setButtonsEnabled(true)
                         fetchDashboardData(team.id)
+                        if (openFavoritesRequested) {
+                            openFavoritesRequested = false
+                            showFavoritesDialog(team.id, team.number, team.team_name)
+                        }
                     } else { navigateToMain() }
                 } else { navigateToMain() }
             } catch (e: Exception) {
@@ -149,118 +159,41 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private fun openFavoritesDialogIfReady() {
+        val currentId = teamId
+        val currentNumber = currentTeamNumber
+        val currentName = currentTeamName
+
+        if (currentId != null && !currentNumber.isNullOrEmpty()) {
+            showFavoritesDialog(currentId, currentNumber, currentName.orEmpty())
+        } else {
+            openFavoritesRequested = true
+        }
+    }
+
     private fun showFavoritesDialog(currentId: Int, currentNumber: String, currentName: String) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_favorites, null)
-        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.favoritesRecyclerView)
-        val filterInput = dialogView.findViewById<TextInputEditText>(R.id.filterEditText)
-        val addButton = dialogView.findViewById<Button>(R.id.addCurrentTeamButton)
-        val clearAllBtn = dialogView.findViewById<Button>(R.id.clearAllButton)
-
-        val dialog = MaterialAlertDialogBuilder(this).setView(dialogView).create()
-
-        val masterFavorites = sharedPref.getStringSet("favorite_teams", emptySet())
-            ?.toMutableList()
-            ?.apply { sortBy { it.split(":").getOrNull(1) ?: "" } } ?: mutableListOf()
-
-        val displayedList = masterFavorites.toMutableList()
-
-        lateinit var adapter: FavoritesAdapter
-
-        fun checkEmpty() {
-            val isEmpty = displayedList.isEmpty()
-            recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        FavoritesDialogHelper.show(
+            activity = this,
+            sharedPref = sharedPref,
+            currentId = currentId,
+            currentNumber = currentNumber,
+            currentName = currentName
+        ) { newId, newNumber, _ ->
+            switchToTeam(newId, newNumber)
         }
-
-        adapter = FavoritesAdapter(displayedList, currentId) { action, entry, position ->
-            if (action == "SELECT") {
-                val parts = entry.split(":")
-                switchToTeam(parts[0].toInt(), parts[1])
-                dialog.dismiss()
-            } else if (action == "REMOVE") {
-                val updatedSet = sharedPref.getStringSet("favorite_teams", emptySet())?.toMutableSet()
-                updatedSet?.remove(entry)
-                sharedPref.edit { putStringSet("favorite_teams", updatedSet) }
-
-                masterFavorites.remove(entry)
-                displayedList.removeAt(position)
-                adapter.notifyItemRemoved(position)
-                checkEmpty()
-            }
-        }
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
-        checkEmpty()
-
-        filterInput.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val query = s.toString().lowercase().trim()
-                val oldSize = displayedList.size
-
-                val filtered = if (query.isEmpty()) masterFavorites else masterFavorites.filter { it.lowercase().contains(query) }
-                val sortedNewList = filtered.sortedBy { it.split(":").getOrNull(1) ?: "" }
-
-                displayedList.clear()
-                displayedList.addAll(sortedNewList)
-
-                if (oldSize > displayedList.size) {
-                    adapter.notifyItemRangeRemoved(displayedList.size, oldSize - displayedList.size)
-                }
-                adapter.notifyDataSetChanged()
-                checkEmpty()
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        val currentEntry = "$currentId:$currentNumber:$currentName"
-        addButton.visibility = if (masterFavorites.contains(currentEntry)) View.GONE else View.VISIBLE
-        addButton.setOnClickListener {
-            val updatedSet = sharedPref.getStringSet("favorite_teams", emptySet())?.toMutableSet() ?: mutableSetOf()
-            updatedSet.add(currentEntry)
-            sharedPref.edit { putStringSet("favorite_teams", updatedSet) }
-
-            masterFavorites.clear()
-            masterFavorites.addAll(updatedSet)
-            masterFavorites.sortBy { it.split(":").getOrNull(1) ?: "" } // Sort by team number
-
-            displayedList.clear()
-            displayedList.addAll(masterFavorites)
-            adapter.notifyDataSetChanged()
-
-            addButton.visibility = View.GONE
-            checkEmpty()
-            showSnackbar("Added $currentNumber")
-        }
-
-        clearAllBtn.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Clear All?")
-                .setMessage("Remove all favorite teams?")
-                .setPositiveButton("Clear") { _, _ ->
-                    sharedPref.edit { remove("favorite_teams") }
-                    dialog.dismiss()
-                    showSnackbar("Favorites cleared")
-                }
-                .setNegativeButton("Cancel", null).show()
-        }
-
-        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
-        dialog.show()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        val window = dialog.window
-        window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.95).toInt(),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
     }
 
     private fun switchToTeam(newId: Int, newNumber: String) {
-        sharedPref.edit {
-            putInt("team_id", newId)
-            putString("team_number", newNumber)
-        }
+        val currentId = teamId ?: -1
+        val didChange = FavoritesDialogHelper.applyTeamSelection(
+            sharedPref = sharedPref,
+            currentTeamId = currentId,
+            newTeamId = newId,
+            newTeamNumber = newNumber,
+            newTeamName = ""
+        )
+        if (!didChange) return
+
         this.teamId = newId
         fetchTeamData(newNumber, newId)
     }
@@ -372,6 +305,14 @@ class HomeActivity : AppCompatActivity() {
             else if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && info.isUpdateTypeAllowed(updateType)) {
                 appUpdateManager.startUpdateFlow(info, this, AppUpdateOptions.defaultOptions(updateType))
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_FAVORITES, false)) {
+            openFavoritesDialogIfReady()
         }
     }
 

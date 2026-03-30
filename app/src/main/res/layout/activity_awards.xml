@@ -6,7 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_dark"
-    android:padding="20dp"
+    android:clipToPadding="false"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="20dp"
     tools:context=".AwardsActivity">
 
     <TextView
@@ -116,11 +119,13 @@
         android:id="@+id/bottomNavBar"
         android:layout_width="0dp"
         android:layout_height="74dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="-20dp"
+        android:layout_marginEnd="-20dp"
         android:background="@drawable/bottom_nav_bg"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -143,12 +148,14 @@
                 android:src="@drawable/ic_nav_home"
                 app:tint="@color/cyber_blue" />
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textAlignment="center"
                 android:text="@string/home"
                 android:textColor="@color/white"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -169,12 +176,14 @@
                 android:src="@drawable/ic_nav_back"
                 app:tint="@color/cyber_blue" />
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textAlignment="center"
                 android:text="@string/back"
                 android:textColor="@color/white"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -195,12 +204,70 @@
                 android:src="@drawable/ic_nav_switch"
                 app:tint="@color/cyber_blue" />
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textAlignment="center"
                 android:text="@string/change_team"
                 android:textColor="@color/white"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navFavoritesButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageButton
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:clickable="false"
+                android:focusable="false"
+                android:contentDescription="@string/favs"
+                android:src="@drawable/ic_nav_favorites"
+                app:tint="@color/cyber_blue" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:text="@string/favs"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAboutButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageButton
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:clickable="false"
+                android:focusable="false"
+                android:contentDescription="@string/about"
+                android:src="@drawable/ic_nav_about"
+                app:tint="@color/cyber_blue" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:text="@string/about"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
