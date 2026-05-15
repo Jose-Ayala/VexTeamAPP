@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.jayala.vexapp.BuildConfig
 
 object RetrofitClient {
-    private const val BASE_URL = "https://www.robotevents.com/api/v2/"
+    private const val BASE_URL = "https://events.vex.com/api/v2/"
 
     private val gson = GsonBuilder()
         .setLenient()
