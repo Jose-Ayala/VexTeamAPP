@@ -17,7 +17,7 @@ plugins {
 
 android {
     namespace = "com.jayala.vexapp"
-    compileSdk = 35
+    compileSdk = 36
 
     buildFeatures {
         viewBinding = true
@@ -27,9 +27,9 @@ android {
     defaultConfig {
         applicationId = "com.jayala.vexapp"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 20
-        versionName = "1.0.20"
+        targetSdk = 36
+        versionCode = 22
+        versionName = "1.0.22"
 
         buildConfigField("String", "ROBOT_EVENTS_TOKEN", "\"$robotEventsToken\"")
 
@@ -38,7 +38,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
